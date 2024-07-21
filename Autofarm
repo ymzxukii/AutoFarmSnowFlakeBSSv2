@@ -42,6 +42,6 @@ while true do
     repeat task.wait()
         game:GetService("TweenService"):Create(lplr.HumanoidRootPart, TweenInfo.new(1), {CFrame = selectedsnowflake.CFrame + Vector3.new(0, 15, 0)}):Play()
         lplr.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
-    until (tick() - collecttick > 4.5)
+    until (tick() - collecttick > 2.5)
     task.wait(6)
 end
