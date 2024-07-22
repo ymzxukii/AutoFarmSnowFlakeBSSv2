@@ -1,15 +1,16 @@
--- My Discord: death_1497
-
+--My discord death_1497
 local path = workspace:WaitForChild("Particles"):WaitForChild("Snowflakes")
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local info = "Please Take Caution when AutoFarming Snowflakes overnight!"
 local autofarmEnabled = true
 local collectTime = 2.5
-local waitTimeBetweenSnowflakes = 4
+local waitTimeBetweenSnowflakes = 3
 local collectedCount = 0
+local startTime = tick()
 
--- Utility functions
+local RunService = game:GetService("RunService")
+
 local function chatmsg(t, c)
     game.StarterGui:SetCore("ChatMakeSystemMessage", {
         Text = t;
@@ -25,16 +26,13 @@ local function notif(ti, tx, du)
     })
 end
 
-local function playSound(soundId)
-    local sound = Instance.new("Sound")
-    sound.SoundId = soundId
-    sound.Parent = player.PlayerGui
-    sound:Play()
-    task.wait(1)
-    sound:Destroy()
+local function formatTime(seconds)
+    local hours = math.floor(seconds / 3600)
+    local minutes = math.floor((seconds % 3600) / 60)
+    local secs = seconds % 60
+    return string.format("%02d:%02d:%02d", hours, minutes, secs)
 end
 
--- Initial notifications
 chatmsg(info, Color3.fromRGB(107, 170, 253))
 notif("Autofarm", info, 5)
 notif("Autofarm", "Sometimes snowflakes won't collect if you're laggy", 5)
@@ -50,31 +48,28 @@ function getsnowflake()
     end
 end
 
--- GUI Setup
 local screenGui = Instance.new("ScreenGui")
 local toggleButton = Instance.new("TextButton")
 local collectedLabel = Instance.new("TextLabel")
+local timerLabel = Instance.new("TextLabel")
 local frame = Instance.new("Frame")
 local uicorner = Instance.new("UICorner")
 
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Main Frame
 frame.Parent = screenGui
-frame.Size = UDim2.new(0, 250, 0, 120) -- Reduced size
-frame.Position = UDim2.new(0, 10, 0.5, -60) -- Positioned on the far middle left
+frame.Size = UDim2.new(0, 250, 0, 160)
+frame.Position = UDim2.new(0, 10, 0.5, -80)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
 frame.BackgroundTransparency = 0.3
 
--- Rounded Corners
 uicorner.CornerRadius = UDim.new(0, 15)
 uicorner.Parent = frame
 
--- Toggle Button
 toggleButton.Parent = frame
-toggleButton.Size = UDim2.new(0, 120, 0, 40) -- Adjusted size
-toggleButton.Position = UDim2.new(0.5, -60, 0.5, -20) -- Centered within the frame
+toggleButton.Size = UDim2.new(0, 200, 0, 40)
+toggleButton.Position = UDim2.new(0.5, -100, 1, -50)
 toggleButton.Text = "Stop Autofarm"
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -96,10 +91,9 @@ toggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Collected Snowflakes Label
 collectedLabel.Parent = frame
-collectedLabel.Size = UDim2.new(0, 200, 0, 40) -- Adjusted size
-collectedLabel.Position = UDim2.new(0.5, -100, 0, 10) -- Centered within the frame
+collectedLabel.Size = UDim2.new(0, 200, 0, 40)
+collectedLabel.Position = UDim2.new(0.5, -100, 0, 10)
 collectedLabel.Text = "Collected: 0"
 collectedLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 collectedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -111,7 +105,25 @@ local collectedUICorner = Instance.new("UICorner")
 collectedUICorner.CornerRadius = UDim.new(0, 10)
 collectedUICorner.Parent = collectedLabel
 
--- Main loop
+timerLabel.Parent = frame
+timerLabel.Size = UDim2.new(0, 200, 0, 40)
+timerLabel.Position = UDim2.new(0.5, -100, 0, 60)
+timerLabel.Text = "Time: 00:00:00"
+timerLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+timerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+timerLabel.TextSize = 20
+timerLabel.Font = Enum.Font.GothamBold
+timerLabel.TextStrokeTransparency = 0.5
+
+local timerUICorner = Instance.new("UICorner")
+timerUICorner.CornerRadius = UDim.new(0, 10)
+timerUICorner.Parent = timerLabel
+
+RunService.Heartbeat:Connect(function()
+    local elapsedTime = tick() - startTime
+    timerLabel.Text = "Time: " .. formatTime(elapsedTime)
+end)
+
 while true do
     if autofarmEnabled then
         character = player.Character or player.CharacterAdded:Wait()
@@ -125,9 +137,8 @@ while true do
         until (tick() - collecttick > collectTime)
         collectedCount = collectedCount + 1
         collectedLabel.Text = "Collected: " .. collectedCount
-        playSound("rbxassetid://12345678") -- Replace with actual sound ID
-        task.wait(waitTimeBetweenSnowflakes) -- Wait time between collections
+        task.wait(waitTimeBetweenSnowflakes)
     else
-        task.wait(1) -- Wait time when autofarm is disabled
+        task.wait(1)
     end
 end
