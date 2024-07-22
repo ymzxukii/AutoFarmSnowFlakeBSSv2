@@ -1,10 +1,10 @@
---My discord death_1497
+-- My discord death_1497
 local path = workspace:WaitForChild("Particles"):WaitForChild("Snowflakes")
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local info = "Please Take Caution when AutoFarming Snowflakes overnight!"
 local autofarmEnabled = true
-local collectTime = 2.5
+local collectTime = 3.5
 local waitTimeBetweenSnowflakes = 3
 local collectedCount = 0
 local startTime = tick()
